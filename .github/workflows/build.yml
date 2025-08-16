@@ -1,30 +1,19 @@
-name: Android CI
+steps:
+  - uses: actions/checkout@v4
 
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
+  - uses: actions/setup-java@v4
+    with:
+      distribution: "temurin"
+      java-version: "21"
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  - name: Generate Gradle Wrapper  # Gradle Wrapper'ı otomatik oluştur
+    run: |
+      gradle wrapper --gradle-version 8.4  # Projenizdeki Gradle versiyonunu yazın
+      chmod +x gradlew
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "21"
+  - run: ./gradlew assembleDebug
 
-      # Android kurulumu için alternatif resmi eylem
-      - uses: android-actions/setup-android@v2  # v4 yerine v2 (son stabil sürüm)
-        # VEYA Google'un resmi eylemi:
-        # - uses: android-github-actions/setup-android@v2
-
-      - run: chmod +x gradlew
-      - run: ./gradlew assembleDebug
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: WebWatchPlus-APK
-          path: app/build/outputs/apk/debug/*.apk
+  - uses: actions/upload-artifact@v4
+    with:
+      name: WebWatchPlus-APK
+      path: app/build/outputs/apk/debug/*.apk
